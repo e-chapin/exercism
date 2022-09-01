@@ -11,7 +11,30 @@ class Board
     @size_x = @rows.first&.size
     throw ArgumentError if !valid_shape? || !valid_rows?
   end
+  
+  # @param [Array<String>] input
+  def self.transform(rows)
+    new(rows).solve_board
+  end
+  
 
+   # @return a solved version of the game board
+  def solve_board
+    # populate @grid
+    create_grid
+    # generate solved board
+    rows = []
+    (0...@size_y).each do |y|
+      row = ''
+      (0...@size_x).each do |x|
+        character = @grid[[x, y]]
+        row += character == ' ' ? count_neighbors(x, y) : character
+      end
+      rows.append(row)
+    end
+    rows
+  end
+  
   # @return true if the input is a valid game board
   def valid_shape?
     @rows.each do |row|
@@ -64,26 +87,5 @@ class Board
     end
     total.positive? ? total.to_s : ' '
   end
-
-  # @return a solved version of the game board
-  def solve_board
-    # populate @grid
-    create_grid
-    # generate solved board
-    rows = []
-    (0...@size_y).each do |y|
-      row = ''
-      (0...@size_x).each do |x|
-        character = @grid[[x, y]]
-        row += character == ' ' ? count_neighbors(x, y) : character
-      end
-      rows.append(row)
-    end
-    rows
-  end
-
-  # @param [Array<String>] input
-  def self.transform(rows)
-    new(rows).solve_board
-  end
+  
 end
