@@ -10,19 +10,26 @@ class Board
     @size_y = @rows.length
     @size_x = @rows.first&.size
     throw ArgumentError if !valid_shape? || !valid_rows?
+    # populate @grid
+    create_grid
   end
   
   # @param [Array<String>] input
   def self.transform(rows)
     new(rows).solve_board
   end
-  
+
+    # populate @grid with character values for each coordinate on the board
+  def create_grid
+    @rows.each_with_index do |row, y|
+      row.each_char.with_index do |character, x|
+        @grid[[x, y]] = character
+      end
+    end
+  end
 
    # @return a solved version of the game board
   def solve_board
-    # populate @grid
-    create_grid
-    # generate solved board
     rows = []
     (0...@size_y).each do |y|
       row = ''
@@ -33,6 +40,18 @@ class Board
       rows.append(row)
     end
     rows
+  end
+
+  # @param [Integer] x
+  # @param [Integer] y
+  # @return The number of mines adjacent to coordinates [x,y], otherwise a space character if there are zero
+  def count_neighbors(x, y)
+    total = 0
+    neighbors = [[-1, -1], [0, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [0, 1], [1, 1]]
+    neighbors.each do |offset_x, offset_y|
+      total += @grid[[x + offset_x, y + offset_y]] == '*' ? 1 : 0
+    end
+    total.positive? ? total.to_s : ' '
   end
   
   # @return true if the input is a valid game board
@@ -66,26 +85,4 @@ class Board
     end
     true
   end
-
-  # populate @grid with character values for each coordinate on the board
-  def create_grid
-    @rows.each_with_index do |row, y|
-      row.each_char.with_index do |character, x|
-        @grid[[x, y]] = character
-      end
-    end
-  end
-
-  # @param [Integer] x
-  # @param [Integer] y
-  # @return The number of mines adjacent to coordinates [x,y], otherwise a space character if there are zero
-  def count_neighbors(x, y)
-    total = 0
-    neighbors = [[-1, -1], [0, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [0, 1], [1, 1]]
-    neighbors.each do |offset_x, offset_y|
-      total += @grid[[x + offset_x, y + offset_y]] == '*' ? 1 : 0
-    end
-    total.positive? ? total.to_s : ' '
-  end
-  
 end
